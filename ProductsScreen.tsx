@@ -79,7 +79,7 @@ const categorias = [
       { id: 26, nombre: "Aqua-rius 2L", precio: 16 },
 
       { id: 27, nombre: "Mini", precio: 3 },
-      { id: 28, nombre: "Pop popular", precio: 4 },
+      { id: 28, nombre: "Pop popular", precio: 4 }, 
       { id: 29, nombre: "Soda peque", precio: 5 },
       { id: 30, nombre: "Coca Cola personal", precio: 7 },
       { id: 31, nombre: "Salvietti personal", precio: 7 },
