@@ -33,12 +33,12 @@ const categorias = [
   {
     nombre: "Pollo a la leña",
     productos: [
-      { id: 1, nombre: "Económico con fideo a la leña", precio: 19 },
-      { id: 2, nombre: "Económico sin fideo a la leña", precio: 17 },
-      { id: 3, nombre: "1/4 pierna a la leña", precio: 30 },
-      { id: 4, nombre: "1/4 pecho a la leña", precio: 36 },
-      { id: 5, nombre: "1/2 pollo a la leña", precio: 60 },
-      { id: 6, nombre: "Pollo entero a la leña", precio: 120 },
+      { id: 1, nombre: "Económico con fideo a la leña", precio: 18 },
+      { id: 2, nombre: "Económico sin fideo a la leña", precio: 16 },
+      { id: 3, nombre: "1/4 pierna a la leña", precio: 28 },
+      { id: 4, nombre: "1/4 pecho a la leña", precio: 32 },
+      { id: 5, nombre: "1/2 pollo a la leña", precio: 55 },
+      { id: 6, nombre: "Pollo entero a la leña", precio: 110 },
       { id: 7, nombre: "Económico con solo papa leña", precio: 16 },
       { id: 8, nombre: "Económico con solo fideo leña", precio: 18 },
     ],
@@ -47,10 +47,10 @@ const categorias = [
     nombre: "Pollo a la broaster",
     productos: [
       { id: 9, nombre: "Super económico broaster", precio: 13 },
-      { id: 10, nombre: "Económico broaster con fideo", precio: 19 },
-      { id: 11, nombre: "Económico broaster", precio: 17 },
-      { id: 12, nombre: "1/4 broaster", precio: 30 },
-      { id: 13, nombre: "1/2 broaster", precio: 60 },
+      { id: 10, nombre: "Económico broaster con fideo", precio: 18 },
+      { id: 11, nombre: "Económico broaster", precio: 16 },
+      { id: 12, nombre: "1/4 broaster", precio: 28 },
+      { id: 13, nombre: "1/2 broaster", precio: 55 },
     ],
   },
   {
