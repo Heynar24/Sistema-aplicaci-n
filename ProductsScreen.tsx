@@ -72,7 +72,7 @@ const categorias = [
       { id: 19, nombre: "Agua personal", precio: 6 },
       { id: 20, nombre: "Tropi-k personal", precio: 7 },
       { id: 21, nombre: "Jugo Tropi popular", precio: 7 },
-      { id: 22, nombre: "Agua 900ml", precio: 8 },
+      { id: 22, nombre: "Agua 990ml", precio: 8 },
       { id: 23, nombre: "Agua 2L", precio: 12 },
       { id: 24, nombre: "Jugo Tropi 1L", precio: 12 },
       { id: 25, nombre: "Jugo del Valle", precio: 12 },
