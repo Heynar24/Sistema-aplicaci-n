@@ -1,12 +1,12 @@
 import 'react-native-url-polyfill/auto';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ImageBackground } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import ProductsScreen from './ProductsScreen'; // Importamos la pantalla de productos
-import AjustesScreen from './AjustesScreen';   // Pantalla de ajustes (nueva)
+import ProductsScreen from './ProductsScreen'; 
+import AjustesScreen from './AjustesScreen';   
 import EditorScreen from './EditorScreen';
-
+import { supabase } from './supabaseClient'; // 👈 importa tu cliente
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +35,28 @@ const HomeScreen: React.FC = ({ navigation }: any) => {
 };
 
 export default function App() {
+  // 👇 Aquí va la prueba de conexión
+  useEffect(() => {
+    const testConnection = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('sesiones_venta')
+          .select('*')
+          .limit(1);
+
+        if (error) {
+          console.log("❌ Error conexión:", error.message);
+        } else {
+          console.log("✅ Conexión correcta:", data);
+        }
+      } catch (err) {
+        console.log("💥 Error inesperado:", err);
+      }
+    };
+
+    testConnection();
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -49,8 +71,8 @@ export default function App() {
 
 const styles = StyleSheet.create({
   background: {
-  flex: 1,
-},
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
