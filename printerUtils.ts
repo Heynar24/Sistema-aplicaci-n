@@ -1,7 +1,8 @@
+
 // @ts-ignore
 import { BluetoothEscposPrinter } from 'react-native-bluetooth-escpos-printer';
 import { NativeModules } from 'react-native';
-import { getNextPedido } from './utils/pedidoCounter'; // ajusta la ruta según tu proyecto
+import { getNextPedido } from './utils/pedidoCounter'; // Ajusta la ruta según tu proyecto
 
 const { BluetoothEscposPrinter: PrinterModule } = NativeModules;
 
@@ -32,6 +33,7 @@ function formatearFecha(fechaISO: string): string {
   const anio = d.getFullYear();
   const hora = String(d.getHours()).padStart(2, '0');
   const min = String(d.getMinutes()).padStart(2, '0');
+
   return `${dia}/${mes}/${anio} ${hora}:${min}`;
 }
 
@@ -40,6 +42,7 @@ function formatearFecha(fechaISO: string): string {
 ======================= */
 
 interface ProductoVenta {
+  id?: number;
   nombre: string;
   precio: number;
   cantidad: number;
@@ -59,102 +62,119 @@ interface Venta {
 ======================= */
 
 // Función auxiliar para imprimir una copia del ticket
-async function imprimirCopiaTicket(venta: Venta, pedidoNum: number, tipoCopia: string, esParaCocina: boolean = false): Promise<void> {
-  console.log(`🔍 Imprimiendo copia: ${tipoCopia}, esParaCocina: ${esParaCocina}`); // Log para verificar
+// Se conserva el formato original del ticket.
+async function imprimirCopiaTicket(
+  venta: Venta,
+  pedidoNum: number,
+  tipoCopia: string,
+  esParaCocina: boolean = false
+): Promise<void> {
+  console.log(
+    `🔍 Imprimiendo copia: ${tipoCopia}, esParaCocina: ${esParaCocina}`
+  );
 
   // -------- RESET --------
   await PrinterModule.printBytes([0x1B, 0x40]);
 
-  // Mensaje de tipo de copia (opcional, para diferenciar)
-  await PrinterModule.printBytes([0x1B, 0x61, 0x01]); // centrar
-  await PrinterModule.printBytes([0x1B, 0x45, 0x01]); // negrita ON
+  // Mensaje de tipo de copia
+  await PrinterModule.printBytes([0x1B, 0x61, 0x01]); // Centrar
+  await PrinterModule.printBytes([0x1B, 0x45, 0x01]); // Negrita ON
+
   await BluetoothEscposPrinter.printText(
-    `${tipoCopia}\n\n`, // Ej. "Copia para cliente" o "Copia para cocina"
+    `${tipoCopia}\n\n`,
     {}
   );
-  await PrinterModule.printBytes([0x1B, 0x45, 0x00]); // negrita OFF
+
+  await PrinterModule.printBytes([0x1B, 0x45, 0x00]); // Negrita OFF
 
   // ======================
-  // TITULO (GRANDE: DOBLE ANCHO Y ALTO, CENTRADO)
+  // TITULO
   // ======================
-  await PrinterModule.printBytes([0x1B, 0x61, 0x01]); // centrar
-  await PrinterModule.printBytes([0x1B, 0x45, 0x01]); // negrita ON
+  await PrinterModule.printBytes([0x1B, 0x61, 0x01]); // Centrar
+  await PrinterModule.printBytes([0x1B, 0x45, 0x01]); // Negrita ON
 
   await BluetoothEscposPrinter.printText(
-    normalizarTexto("POLLOS EL SABROSITO\n"),
+    normalizarTexto('POLLOS EL SABROSITO\n'),
     {
-      widthtimes: 1,   // ancho x2
-      heigthtimes: 1,  // alto x2
+      widthtimes: 1,
+      heigthtimes: 1,
       fonttype: 0
     }
   );
 
-  // -------- PEDIDO (MISMO TAMAÑO GRANDE) --------
+  // -------- PEDIDO --------
   await BluetoothEscposPrinter.printText(
     `PEDIDO N#${pedidoNum}\n`,
     {
-      widthtimes: 1,   // ancho x2
-      heigthtimes: 1,  // alto x2
+      widthtimes: 1,
+      heigthtimes: 1,
       fonttype: 0
     }
   );
 
   // ======================
-  // SUBTITULO (NORMAL, CENTRADO)
+  // SUBTITULO
   // ======================
-  await PrinterModule.printBytes([0x1B, 0x61, 0x01]); // centrar
-  await PrinterModule.printBytes([0x1D, 0x21, 0x00]); // tamaño normal
-  await PrinterModule.printBytes([0x1B, 0x45, 0x00]); // negrita OFF
+  await PrinterModule.printBytes([0x1B, 0x61, 0x01]); // Centrar
+  await PrinterModule.printBytes([0x1D, 0x21, 0x00]); // Tamaño normal
+  await PrinterModule.printBytes([0x1B, 0x45, 0x00]); // Negrita OFF
 
   await BluetoothEscposPrinter.printText(
-    "Telf. 64432226\n",
-    {}
-  );
-  await BluetoothEscposPrinter.printText(
-    normalizarTexto("Doble via La Guardia, Km20\n\n"),
+    'Telf. 64432226\n',
     {}
   );
 
+  await BluetoothEscposPrinter.printText(
+    normalizarTexto('Doble via La Guardia, Km20\n\n'),
+    {}
+  );
+
   // ======================
-  // CUERPO (IZQUIERDA, CON TEXTO AGRANDADO PARA CLIENTE, MODALIDAD Y PAGO)
+  // CUERPO
   // ======================
-  await PrinterModule.printBytes([0x1B, 0x61, 0x00]); // izquierda
+  await PrinterModule.printBytes([0x1B, 0x61, 0x00]); // Izquierda
 
   await BluetoothEscposPrinter.printText(
-    "------------------------------\n",
+    '------------------------------\n',
     {}
   );
 
   // Cliente agrandado
-  await PrinterModule.printBytes([0x1D, 0x21, 0x11]); // doble ancho y alto
+  await PrinterModule.printBytes([0x1D, 0x21, 0x11]);
+
   await BluetoothEscposPrinter.printText(
     `Cliente: ${normalizarTexto(venta.cliente)}\n`,
     {}
   );
-  await PrinterModule.printBytes([0x1D, 0x21, 0x00]); // reset a normal
+
+  await PrinterModule.printBytes([0x1D, 0x21, 0x00]);
 
   // Modalidad agrandada
-  await PrinterModule.printBytes([0x1D, 0x21, 0x11]); // doble ancho y alto
+  await PrinterModule.printBytes([0x1D, 0x21, 0x11]);
+
   await BluetoothEscposPrinter.printText(
     `Modalidad: ${venta.modalidad}\n`,
     {}
   );
-  await PrinterModule.printBytes([0x1D, 0x21, 0x00]); // reset a normal
+
+  await PrinterModule.printBytes([0x1D, 0x21, 0x00]);
 
   await BluetoothEscposPrinter.printText(
-    "------------------------------\n",
+    '------------------------------\n',
     {}
   );
 
   // ======================
-  // PRODUCTOS (TAMAÑO CONDICIONAL: TRIPLE PARA COCINA, DOBLE PARA CLIENTE)
+  // PRODUCTOS
   // ======================
   if (esParaCocina) {
-    console.log("🔍 Aplicando tamaño triple para cocina"); // Log para verificar
-    await PrinterModule.printBytes([0x1D, 0x21, 0x22]); // triple ancho y alto para cocina
+    console.log('🔍 Aplicando tamaño triple para cocina');
+
+    await PrinterModule.printBytes([0x1D, 0x21, 0x22]);
   } else {
-    console.log("🔍 Aplicando tamaño doble para cliente"); // Log para verificar
-    await PrinterModule.printBytes([0x1D, 0x21, 0x11]); // doble ancho y alto para cliente
+    console.log('🔍 Aplicando tamaño doble para cliente');
+
+    await PrinterModule.printBytes([0x1D, 0x21, 0x11]);
   }
 
   for (const p of venta.productos) {
@@ -165,24 +185,25 @@ async function imprimirCopiaTicket(venta: Venta, pedidoNum: number, tipoCopia: s
   }
 
   // ======================
-  // TOTAL (NORMAL, NEGRITA)
+  // TOTAL
   // ======================
-  await PrinterModule.printBytes([0x1D, 0x21, 0x00]); // normal
-  await PrinterModule.printBytes([0x1B, 0x45, 0x01]); // negrita
+  await PrinterModule.printBytes([0x1D, 0x21, 0x00]);
+  await PrinterModule.printBytes([0x1B, 0x45, 0x01]);
 
   await BluetoothEscposPrinter.printText(
-    "------------------------------\n",
+    '------------------------------\n',
     {}
   );
+
   await BluetoothEscposPrinter.printText(
     `TOTAL: Bs ${venta.total}\n`,
     {}
   );
 
-  await PrinterModule.printBytes([0x1B, 0x45, 0x00]); // negrita OFF
+  await PrinterModule.printBytes([0x1B, 0x45, 0x00]);
 
   // ======================
-  // FECHA (NORMAL)
+  // FECHA
   // ======================
   await BluetoothEscposPrinter.printText(
     `Fecha: ${formatearFecha(venta.fecha)}\n`,
@@ -190,31 +211,95 @@ async function imprimirCopiaTicket(venta: Venta, pedidoNum: number, tipoCopia: s
   );
 
   // ======================
-  // CORTE (COMPLETO)
+  // CORTE
   // ======================
-  await BluetoothEscposPrinter.printText("\n\n", {});
+  await BluetoothEscposPrinter.printText('\n\n', {});
+
   await sleep(400);
-  await PrinterModule.printBytes([0x1D, 0x56, 0x42, 0x00]);  //eliminar el 0x42
+
+  await PrinterModule.printBytes([0x1D, 0x56, 0x42, 0x00]);
 }
+
+/* =======================
+   FUNCIÓN PRINCIPAL
+======================= */
 
 export async function imprimirVenta(venta: Venta): Promise<void> {
   try {
-    console.log("🔍 Iniciando impresión de venta"); // Log para verificar
-    // Generar ID una vez para ambas copias
+    console.log('🔍 Iniciando impresión de venta');
+
+    // ---------------------------------
+    // VALIDAR PRODUCTOS
+    // ---------------------------------
+
+    if (!venta.productos || venta.productos.length === 0) {
+      console.log('⚠️ No hay productos para imprimir');
+      return;
+    }
+
+    // ---------------------------------
+    // DETECTAR SI EL PEDIDO ES SOLO SODAS
+    // ---------------------------------
+
+    // Los productos con IDs del 18 al 48
+    // pertenecen a la categoría de sodas.
+    const esSoloSodas = venta.productos.every(
+      (producto) =>
+        typeof producto.id === 'number' &&
+        producto.id >= 18 &&
+        producto.id <= 48
+    );
+
+    console.log(
+      '🥤 ¿El pedido contiene solamente sodas?:',
+      esSoloSodas
+    );
+
+    // ---------------------------------
+    // GENERAR NÚMERO DE PEDIDO
+    // ---------------------------------
+
+    // Se genera una sola vez y se utiliza
+    // el mismo número en todas las copias.
     const pedidoNum = await getNextPedido();
-    console.log(`🔍 ID de pedido generado: ${pedidoNum}`); // Log para verificar
 
-    // Imprimir primera copia (para cliente, tamaño normal)
-    await imprimirCopiaTicket(venta, pedidoNum, "Copia para cliente", false);
+    console.log(`🔍 ID de pedido generado: ${pedidoNum}`);
 
-    // Pausa entre copias para evitar solapamiento
-    await sleep(500);
+    // ---------------------------------
+    // PRIMERA COPIA: CLIENTE
+    // ---------------------------------
 
-    // Imprimir segunda copia (para cocina, tamaño grande)
-    await imprimirCopiaTicket(venta, pedidoNum, "Copia para cocina", true);
+    await imprimirCopiaTicket(
+      venta,
+      pedidoNum,
+      'Copia para cliente',
+      false
+    );
 
-    console.log("🔍 Impresión completada"); // Log para verificar
+    // ---------------------------------
+    // SEGUNDA COPIA: COCINA
+    // ---------------------------------
+
+    // Si el pedido contiene comida,
+    // se imprime también la copia de cocina.
+    if (!esSoloSodas) {
+      console.log('🍗 Pedido con comida: preparando segunda copia');
+
+      await sleep(500);
+
+      await imprimirCopiaTicket(
+        venta,
+        pedidoNum,
+        'Copia para cocina',
+        true
+      );
+
+      console.log('✅ Impresión doble completada');
+    } else {
+      console.log('✅ Pedido de sodas: impresión única completada');
+    }
+
   } catch (e) {
-    console.log("🛑 Error imprimiendo:", e);
+    console.log('🛑 Error imprimiendo:', e);
   }
 }

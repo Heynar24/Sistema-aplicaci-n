@@ -53,7 +53,7 @@ const categorias = [
       {
         id: 14,
         nombre: 'Salchipapa clásica',
-        precio: 16,
+        precio: 17,
       },
     ],
   },
