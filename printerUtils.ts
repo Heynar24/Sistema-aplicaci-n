@@ -238,21 +238,28 @@ export async function imprimirVenta(venta: Venta): Promise<void> {
     }
 
     // ---------------------------------
-    // DETECTAR SI EL PEDIDO ES SOLO SODAS
+    // DETECTAR PRODUCTOS SIN COCINA
     // ---------------------------------
 
-    // Los productos con IDs del 18 al 48
-    // pertenecen a la categoría de sodas.
-    const esSoloSodas = venta.productos.every(
+    // IDs 18 al 48: Sodas.
+    // IDs 49 al 76: Helados.
+    //
+    // Si TODOS los productos pertenecen a estos
+    // rangos, solamente se imprime una copia.
+    //
+    // Si existe comida u otro ID desconocido,
+    // se imprime también la copia de cocina.
+
+    const esSoloProductosSinCocina = venta.productos.every(
       (producto) =>
         typeof producto.id === 'number' &&
         producto.id >= 18 &&
-        producto.id <= 48
+        producto.id <= 76
     );
 
     console.log(
-      '🥤 ¿El pedido contiene solamente sodas?:',
-      esSoloSodas
+      '🥤🍦 ¿El pedido contiene solamente sodas y/o helados?:',
+      esSoloProductosSinCocina
     );
 
     // ---------------------------------
@@ -282,7 +289,7 @@ export async function imprimirVenta(venta: Venta): Promise<void> {
 
     // Si el pedido contiene comida,
     // se imprime también la copia de cocina.
-    if (!esSoloSodas) {
+    if (!esSoloProductosSinCocina) {
       console.log('🍗 Pedido con comida: preparando segunda copia');
 
       await sleep(500);
@@ -296,7 +303,9 @@ export async function imprimirVenta(venta: Venta): Promise<void> {
 
       console.log('✅ Impresión doble completada');
     } else {
-      console.log('✅ Pedido de sodas: impresión única completada');
+      console.log(
+        '✅ Pedido de sodas y/o helados: impresión única completada'
+      );
     }
 
   } catch (e) {
